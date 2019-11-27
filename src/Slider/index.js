@@ -2,20 +2,24 @@ import React, { useState, useEffect, useReducer, useRef } from "react";
 import { SliderItem, SliderContainer, SliderWrapper } from "./styles";
 
 const Slider = ({ dir = "ltr" }) => {
-  const width = useWindowWidth();
   const sliderRef = useRef(null);
+  const slideItemRef = useRef(null);
+  const width = useWindowWidth(slideItemRef);
   // sliderRef.scrollLeft = 100;
   // console.log(sliderRef);
   const scrollToLeft = () => {
+    // console.log(slideItemRef.current.clientWidth);
     dir === "rtl"
       ? (sliderRef.current.scrollLeft = state.items.length * width)
-      : null;
+      : (sliderRef.current.scrollLeft = 0);
   };
   useEffect(scrollToLeft);
+  console.log({ currentWidth: width }, [dir]);
 
   const [state, dispatch] = useReducer(reducer, {
     currentIndex: 0,
     sliderRef: null,
+    slideItemRef: null,
     items: [
       { id: 1, name: "1" },
       { id: 2, name: "2" },
@@ -30,11 +34,14 @@ const Slider = ({ dir = "ltr" }) => {
       <SliderContainer
         ref={sliderRef}
         className={"slider-instance"}
-        height={"400px"}
+        height={"300px"}
       >
         <SliderWrapper
           width={width * state.items.length}
           style={{
+            marginTop: "10px",
+            marginLeft: "10px",
+            marginRight: "10px",
             transform: `translateX(${-(state.currentIndex * width)}px)`,
             transition: "transform ease-out 0.30s",
             width: width * state.items.length + "px"
@@ -50,7 +57,8 @@ const Slider = ({ dir = "ltr" }) => {
                 item={i}
                 dispatch={dispatch}
                 snap={state.snap}
-                width={width}
+                width={300}
+                slideItemRef={slideItemRef}
               />
             );
           })}
@@ -60,11 +68,16 @@ const Slider = ({ dir = "ltr" }) => {
   );
 };
 
-function useWindowWidth() {
-  const [width, setWidth] = useState(window.innerWidth);
+function useWindowWidth(slideItemRef) {
+  console.log(
+    window.innerWidth,
+    slideItemRef.current && slideItemRef.current.clientWidth
+  );
+  const [width, setWidth] = useState(305);
 
   useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
+    console.log("above handleResize..", slideItemRef.current.clientWidth);
+    const handleResize = () => setWidth(305);
 
     window.addEventListener("resize", handleResize);
 
@@ -100,9 +113,9 @@ function reducer(state, action) {
   }
 }
 
-const Slide = ({ item, width }) => {
+const Slide = ({ slideItemRef, item, width }) => {
   return (
-    <SliderItem width={width}>
+    <SliderItem ref={slideItemRef} width={width}>
       <div>{item.name}</div>
     </SliderItem>
   );

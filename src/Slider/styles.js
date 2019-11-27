@@ -21,10 +21,11 @@ export const SliderWrapper = styled.div`
 
 export const SliderItem = styled.div`
   position: relative;
-  height: 400px;
+  height: 250px;
   width: ${props => props.width + "px" || "100%"};
   border: 1px solid #000;
   display: flex;
+  margin-right: 5px;
   justify-content: center;
   align-items: center;
   font-size: 40px;
