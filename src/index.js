@@ -6,7 +6,7 @@ import "./styles.css";
 function App() {
   return (
     <div className="App">
-      <Slider dir={"rtl"} />
+      <Slider dir={"rtl"} h={300} w={300} margin={5} />
     </div>
   );
 }

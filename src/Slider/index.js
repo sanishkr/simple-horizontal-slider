@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useReducer, useRef } from "react";
 import { SliderItem, SliderContainer, SliderWrapper } from "./styles";
+import Swipe from "react-easy-swipe";
 
-const Slider = ({ dir = "ltr" }) => {
+const Slider = ({ dir = "ltr", h, w, margin }) => {
   const sliderRef = useRef(null);
   const slideItemRef = useRef(null);
-  const width = useWindowWidth(slideItemRef);
+  const width = useWindowWidth(w + margin);
   // sliderRef.scrollLeft = 100;
   // console.log(sliderRef);
   const scrollToLeft = () => {
@@ -12,6 +13,20 @@ const Slider = ({ dir = "ltr" }) => {
     dir === "rtl"
       ? (sliderRef.current.scrollLeft = state.items.length * width)
       : (sliderRef.current.scrollLeft = 0);
+  };
+  const goToNext = () => {
+    console.log("go to next");
+
+    dir === "rtl"
+      ? (sliderRef.current.scrollLeft = width)
+      : (sliderRef.current.scrollRight = width);
+  };
+  const goToPrev = () => {
+    console.log("go to prev");
+
+    dir === "rtl"
+      ? (sliderRef.current.scrollRight = width)
+      : (sliderRef.current.scrollLeft = width);
   };
   useEffect(scrollToLeft);
   console.log({ currentWidth: width }, [dir]);
@@ -34,7 +49,7 @@ const Slider = ({ dir = "ltr" }) => {
       <SliderContainer
         ref={sliderRef}
         className={"slider-instance"}
-        height={"300px"}
+        height={`${h}px`}
       >
         <SliderWrapper
           width={width * state.items.length}
@@ -50,16 +65,22 @@ const Slider = ({ dir = "ltr" }) => {
         >
           {state.items.map((i, index) => {
             return (
-              <Slide
+              <Swipe
                 key={i.id}
-                last={index === state.items.length - 1}
-                index={index}
-                item={i}
-                dispatch={dispatch}
-                snap={state.snap}
-                width={300}
-                slideItemRef={slideItemRef}
-              />
+                onSwipeLeft={() => goToPrev()}
+                onSwipeRight={() => goToNext()}
+              >
+                <Slide
+                  key={i.id}
+                  last={index === state.items.length - 1}
+                  index={index}
+                  item={i}
+                  dispatch={dispatch}
+                  snap={state.snap}
+                  width={w}
+                  slideItemRef={slideItemRef}
+                />
+              </Swipe>
             );
           })}
         </SliderWrapper>
@@ -68,16 +89,16 @@ const Slider = ({ dir = "ltr" }) => {
   );
 };
 
-function useWindowWidth(slideItemRef) {
-  console.log(
-    window.innerWidth,
-    slideItemRef.current && slideItemRef.current.clientWidth
-  );
-  const [width, setWidth] = useState(305);
+function useWindowWidth(initialWidth) {
+  // console.log(
+  //   window.innerWidth,
+  //   slideItemRef.current && slideItemRef.current.clientWidth
+  // );
+  const [width, setWidth] = useState(initialWidth);
 
   useEffect(() => {
-    console.log("above handleResize..", slideItemRef.current.clientWidth);
-    const handleResize = () => setWidth(305);
+    // console.log("above handleResize..", slideItemRef.current.clientWidth);
+    const handleResize = () => setWidth(initialWidth);
 
     window.addEventListener("resize", handleResize);
 
