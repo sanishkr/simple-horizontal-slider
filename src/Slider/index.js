@@ -4,7 +4,6 @@ import Swipe from "react-easy-swipe";
 
 const Slider = ({ dir = "ltr", h, w, margin }) => {
   const sliderRef = useRef(null);
-  const slideItemRef = useRef(null);
   const width = useWindowWidth(w + margin);
   // sliderRef.scrollLeft = 100;
   // console.log(sliderRef);
@@ -78,7 +77,6 @@ const Slider = ({ dir = "ltr", h, w, margin }) => {
                   dispatch={dispatch}
                   snap={state.snap}
                   width={w}
-                  slideItemRef={slideItemRef}
                 />
               </Swipe>
             );
@@ -134,9 +132,9 @@ function reducer(state, action) {
   }
 }
 
-const Slide = ({ slideItemRef, item, width }) => {
+const Slide = ({ item, width }) => {
   return (
-    <SliderItem ref={slideItemRef} width={width}>
+    <SliderItem width={width}>
       <div>{item.name}</div>
     </SliderItem>
   );
