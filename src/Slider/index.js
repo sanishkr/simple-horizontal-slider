@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useReducer, useRef } from "react";
 import { SliderItem, SliderContainer, SliderWrapper } from "./styles";
+import { InView } from "react-intersection-observer";
 import Swipe from "react-easy-swipe";
 
 const Slider = ({ dir = "ltr", h, w, margin }) => {
+  // const [currentIndex, setCurrentIndex] = useState(0);
   const sliderRef = useRef(null);
   const width = useWindowWidth(w + margin);
   // sliderRef.scrollLeft = 100;
@@ -14,17 +16,20 @@ const Slider = ({ dir = "ltr", h, w, margin }) => {
       : (sliderRef.current.scrollLeft = 0);
   };
   const goToNext = () => {
-    console.log("go to next");
+    console.log("go to next", state.currentIndex);
 
     dir === "rtl"
-      ? (sliderRef.current.scrollLeft = width)
+      ? (sliderRef.current.scrollLeft =
+          (state.items.length - state.currentIndex - 1) * width)
       : (sliderRef.current.scrollRight = width);
   };
   const goToPrev = () => {
-    console.log("go to prev");
+    console.log("go to prev", state.currentIndex);
 
     dir === "rtl"
-      ? (sliderRef.current.scrollRight = width)
+      ? state.currentIndex <= 1
+        ? null
+        : (sliderRef.current.scrollRight = width)
       : (sliderRef.current.scrollLeft = width);
   };
   useEffect(scrollToLeft);
@@ -64,21 +69,29 @@ const Slider = ({ dir = "ltr", h, w, margin }) => {
         >
           {state.items.map((i, index) => {
             return (
-              <Swipe
+              <InView
+                onChange={(inView, entry) => {
+                  if (inView && entry.intersectionRatio >= 1) {
+                    state.currentIndex = index + 1;
+                  }
+                }}
                 key={i.id}
-                onSwipeLeft={() => goToPrev()}
-                onSwipeRight={() => goToNext()}
               >
-                <Slide
-                  key={i.id}
-                  last={index === state.items.length - 1}
-                  index={index}
-                  item={i}
-                  dispatch={dispatch}
-                  snap={state.snap}
-                  width={w}
-                />
-              </Swipe>
+                <Swipe
+                  onSwipeLeft={() => goToPrev()}
+                  onSwipeRight={() => goToNext()}
+                >
+                  <Slide
+                    key={i.id}
+                    last={index === state.items.length - 1}
+                    index={index}
+                    item={i}
+                    dispatch={dispatch}
+                    snap={state.snap}
+                    width={w}
+                  />
+                </Swipe>
+              </InView>
             );
           })}
         </SliderWrapper>
